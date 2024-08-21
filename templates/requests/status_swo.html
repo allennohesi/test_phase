@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h3>Summary</h3>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Status</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body" id="transaction_content">
+                    <ul class="nav nav-pills" id="tabUL" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="pills-ongoing" data-bs-toggle="pill" href="#ongoing" role="tab">
+                                <i class="fa fa-file-o"></i> Summary of Transactions
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-icontabContent">
+                        <div class="tab-pane fade show active m-t-30" id="ongoing" role="tabpanel">
+                            <div class="table table-responsive">
+                                <table class="table table-responsive" width="100%"  id="active-swo">
+                                    <thead>
+                                        <th class="text-center">#</th>
+                                        <th class="text-center">TABLE NUMBER</th>
+                                        <th class="text-center">FULL NAME</th>
+                                        <th class="text-center">PENDING ASSESSMENT</th>
+                                        <th class="text-center">ONGOING ASSESSMENT</th>
+                                        <th class="text-center">COMPLETED ASSESSMENT</th>
+                                        <th class="text-center">CASE STUDY</th>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    $('#active-swo').DataTable({ //ASSIGNED TO SELF
+        'serverSide': true,
+        'processing': true,
+        'deferRender': true,
+        'lengthMenu': [ 8, 30, 50, 100 ],
+        'order': [[ 1, 'desc' ]],
+        'bDestroy': true,
+        'ajax': {
+            'url': '/api/user/active/swo/?format=datatables&address={{user_details.barangay.city_code.prov_code.prov_name}}',
+            'type': 'GET',
+            'data': function(d) {
+                d.page = d.start / d.length + 1;  // Calculate the current page based on start and length
+                d.page_size = d.length;  // Send the page size
+            },
+        },
+        'fnCreatedRow': function (row, data, index) {
+            $(row).attr('id', data['id']);
+        },
+        'columns': [
+            {'data': 'id',
+                'render': function(data, type, row, meta) {
+                    return meta.row + meta.settings._iDisplayStart + 1;
+                },
+            },
+            {'data': 'table', 'className': 'text-center', 'sortable': false},
+            {'data': 'fullname','name':'user.fullname', 'className': 'text-center', 'sortable': false },
+            {'data': 'pending','name':'get_total', 'className': 'text-center', 'sortable': false, 'searchable': false },
+            {'data': 'ongoing','name':'get_ongoing', 'className': 'text-center', 'sortable': false, 'searchable': false },
+            {'data': 'complete','name':'get_complete', 'className': 'text-center', 'sortable': false, 'searchable': false },
+            {'data': 'datas','name':'case_study', 'className': 'text-center', 'sortable': false, 'searchable': false},
+        ]
+    });
+    function handleRadioClick(radio) {
+        selectedUserId = radio.value;
+        // Example: Update another field with the selected user ID
+        $('#swo_id').val(selectedUserId);
+        // You can perform other actions with the selectedUserId as needed
+    }
+    $(document).ready(function() {
+        $('#queu_number').on('input', function() {
+            // Remove non-numeric characters using a regular expression
+            $(this).val($(this).val().replace(/\D/g, ''));
+        });
+    });
+</script>
+
+
+{% endblock %}

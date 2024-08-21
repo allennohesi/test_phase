@@ -1,0 +1,144 @@
+{% load humanize %}
+<style>
+    .hidden {
+        display: none;
+        }
+</style>
+<div class="row" id="modal_view">
+    <form id="submitoutsidedata">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>GL Number <span class="txt-danger">*</span></label>
+                    <input type="text" class="form-control" id="" value="{{data.glnumber}}" name="glnumber" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Client / Beneficiary name <span class="txt-danger">*</span></label>
+                    <input type="text" class="form-control" id="" value="{{data.client_name}}" name="clientname" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Service Provider <span class="txt-danger">*</span></label>
+                    <select class="form-control select" name="service_provider" id="service_pr" required>
+                        <option></option>
+                        {% for row in service_provider  %}
+                        {% if row.id == data.service_provider_id %}
+                        <option value="{{ row.id }}" selected>{{ row.name|upper }}</option>
+                        {% else %}
+                        <option value="{{ row.id }}">{{ row.name|upper }}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Assistance type <span class="txt-danger">*</span></label>
+                    <input type="text" class="form-control" id="" value="{{data.assistance_type}}" name="assistance_type" required>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group">
+                    <label>Date of transaction </label> <span class="txt-danger" id="required">*</span>
+                    <input type="date" class="form-control f-w-900 upper" value="{{ data.date_soa|date:'Y-m-d' }}" name="date" required>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label>Amount <span class="txt-danger">*</span></label>
+                    <input type="text" class="form-control" onkeypress="return (event.charCode !=8 && event.charCode ==0 || ( event.charCode == 46 || (event.charCode >= 48 && event.charCode <= 57)))" value="{{data.amount|intcomma}}" name="amount" required>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label>Update</label>
+                    <input type="submit" class="form-control f-w-900">
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script>
+    $('.select1').select2({
+        width: '100%',
+        placeholder: 'Choose',
+        containerCssClass: 'select'
+    });
+    $('.select').select2({
+        width: '100%',
+        placeholder: 'CHOOSE',
+        containerCssClass: 'select'
+    });
+</script>
+<script>
+    var originalDate = "{{data.date_soa}}";
+    var parts = originalDate.split('-');
+    var formattedDate = parts[2] + '/' + parts[1] + '/' + parts[0]; // dd/mm/yyyy
+
+    // Set the value of the input element using JavaScript
+    document.querySelector(".f-w-900").value = formattedDate;
+
+    function validate(evt) {
+        var theEvent = evt || window.event;
+        // Handle paste
+        if (theEvent.type === 'paste') {
+            key = event.clipboardData.getData('text/plain');
+        } else {
+        // Handle key press
+            var key = theEvent.keyCode || theEvent.which;
+            key = String.fromCharCode(key);
+        }
+        var regex = /[0-9]|\./;
+        if( !regex.test(key) ) {
+            theEvent.returnValue = false;
+            if(theEvent.preventDefault) theEvent.preventDefault();
+        }
+    }
+    $('#submitoutsidedata').on('submit', function(e){
+        e.preventDefault();
+        var form = new FormData(this);
+        if (!validationForm()){
+            Swal.fire({
+                title: "Are you sure",
+                text: "You want to update this data",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+                allowOutsideClick: false,
+                showLoaderOnConfirm: true,
+                preConfirm: function (){
+                    return $.post({
+                        url: "{% url 'edit_outside_fo' data.id %}",
+                        data: form,
+                        success : function (response){
+                            if(!response.error){
+                                Swal.fire({
+                                    title: "Good job!",
+                                    html:  response.msg,
+                                    icon: "success",
+                                    allowOutsideClick: false,
+                                }).then((result) => {
+                                    if (result.isConfirmed){
+                                        $('#modal_view').load('/financial-transaction/edit_outside_fo/{{ data.id }}');
+                                        $('#table').DataTable().ajax.reload();
+                                    }
+                                });
+                            }else{
+                                Swal.fire("Oops...", response.msg, "warning");
+                            }
+                        },
+                        cache       : false,
+                        contentType : false,
+                        processData : false,
+                    });
+                },
+            });
+        }
+    });
+</script>

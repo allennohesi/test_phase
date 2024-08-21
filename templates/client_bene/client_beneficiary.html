@@ -1,0 +1,268 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load static %}
+<div class="container-fluid">
+    <div class="page-title">
+        <div class="row">
+            <div class="col-6">
+                <h3>Client / Beneficiary</h3>
+            </div>
+            <div class="col-6">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active">Client / Beneficiary</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card">
+                <div class="card-body" id="client_content">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm" id="client-beneficiary-list">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Action</th>
+                                    <th>ID Number</th>
+                                    <th>Picture</th>
+                                    <th>Last Name</th>
+                                    <th>First Name</th>
+                                    <th>Middle Name</th>
+                                    <th>Full name</th>
+                                    <th>Sex</th>
+                                    <th class="text-center">Contact Number</th>
+                                    <th class="text-center">Birthdate</th>
+                                    <th class="text-center">Address</th>
+                                    <th class="text-end">Date of Registration</th>
+                                    <th class="text-end">View Transaction</th>
+                                    <th class="text-end">Status</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade bd-example-modal-xl" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="modalProvidedLabel">Tracking of Transaction Client/Benefiary</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="load_data">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+<script>
+    $(document).ready(function(){
+        $('#client-beneficiary-list').DataTable({
+            'serverSide': true,
+            'processing': true,
+            'deferRender': true,
+            'lengthMenu': [ 12, 25, 50, 100 ],
+            'order': [[ 1, 'asc' ]],
+            'bDestroy': true,
+            'ajax': {
+                'url': '/api/client-beneficiary/?format=datatables',
+                'type': 'GET',
+                'data': function(d) {
+                    d.page = d.start / d.length + 1;  // Calculate the current page based on start and length
+                    d.page_size = d.length;  // Send the page size
+                },
+            },
+            'fnCreatedRow': function (row, data, index) {
+                $(row).attr('id', data['id']);
+            },
+            'columns': [
+                {'data': 'id',
+                    'render': function(data, type, row, meta) {
+                        return meta.row + meta.settings._iDisplayStart + 1;
+                    },
+                    
+                },
+                {'data': 'is_validated',
+                    'render': function(data, type, row, meta) {
+                        if(data == 1) {
+                            return "<a href='#' data-role='deactivate', 'className': 'text-center', data-id="+ row['id'] + ">DEACTIVATE</a>"
+                        }else{
+                            return "<a href='#' data-role='activate', 'className': 'text-center', data-id="+ row['id'] + ">ACTIVATE</a>" 
+                        }
+                    },
+                    'searchable': false,
+                    'sortable': false
+                },
+                {'data': 'unique_id_number',
+                    'render': function(data, type, row, meta) {
+                        return "<a href='javascript:void(0);' data-role='details' data-title='"+ data + "'>"+ data +"</a>"
+                    },
+                    'sortable': false
+                },
+                {'data': 'get_picture',
+                    'render': function(data, type, row, meta) {
+                        if (data) {
+                            return `<div class="image-container">
+                                <img loading="lazy" class="rounded-circle img-radius align-top m-r-15" 
+                                    data-toggle="popover" data-trigger="hover" 
+                                    data-html="true" loading="lazy" 
+                                    style="object-fit:cover; width: 40px; height: 40px;" 
+                                    data-placement="right" 
+                                    data-content="<img loading='lazy' src='`+ data + `' style='width: 250px; height: 250px; object-fit:cover;'>" 
+                                    src='`+ data + `'>
+                            </div>`;
+                        }else{
+                            return `<center><img loading="lazy" class="rounded-circle img-radius align-top m-r-15" data-toggle="popover"
+                                data-html="true"
+                                loading="lazy"
+                                style="object-fit:cover; width: 40px; height: 40px;"
+                                data-placement="right"
+                                data-content="<center><img loading='lazy' src='{% static 'images/dashboard/profile.jpg' %}' style='width: 250px; height: 250px; object-fit:cover;'></center>" src="{% static 'images/dashboard/profile.jpg' %}">
+                            </center>`;
+                        }
+                    },
+                    searchable:'false',
+                    sortable:'false',
+                    className: 'text-center'
+                },
+                {'data': 'last_name'  },
+                {'data': 'first_name' },
+                {'data': 'middle_name' },
+                {'data': 'client_bene_fullname' },
+                {'data': 'sex', 'name':'sex.name' },
+                {'data': 'contact_number',
+                    'render': function(data, type, row, meta) {
+                        return "+63" + data
+                    },
+                    'className': 'text-center',
+                    'sortable': false
+                },
+                {'data': 'birthdate', 'className': 'text-center', 'sortable': false  },
+                {'data': 'address', 'className': 'text-center', 'sortable': false, 'searchable': false},
+                {'data': 'date_of_registration',
+                    'className': 'text-end',
+                    'sortable': false
+                },
+                {'data': 'id', 'className': 'text-center', 
+                    'render': function(data, type, row, meta) {
+                        return "<a href='#' data-role='view_transactions' data-id="+ row['id'] + ">View Transaction</a>"
+                    },
+                    'sortable': false,
+                    'searchable': false
+                },
+                {'data': 'is_validated',
+                    'render': function(data, type, row, meta) {
+                        if(data == 1) {
+                            return '<i class="fa fa-circle txt-success"></i> Active'
+                        }else{
+                            return '<i class="fa fa-circle txt-danger"></i> Inactive'
+                        }
+                    },
+                    'searchable': false,
+                    'sortable': false
+                },
+            ]
+        });
+        $(document).on('click','a[data-role=view_transactions]', function(){ // FOR MODAL PASS TO DIFFERENT MODAL
+            var id = $(this).data('id');
+            console.log(id);
+            $('#empid').val(id)
+            $('#myModal').modal('show').find('#load_data').load('/client-beneficiary/view_transaction/modal_for_transaction/' +id);
+        });
+        $(document).on('click', 'a[data-role=details]', function(){
+            $('#client_content').load('/client-beneficiary/view/' + $(this).data('title'));
+        });
+        $(document).on('click', 'a[data-role=activate]', function(){
+            var id = $(this).data('id');
+            Swal.fire({
+              title: "Are you sure",
+              text: "You want to activate this data?",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3498DB",
+              confirmButtonText: "Yes",
+              allowOutsideClick: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.showLoading()
+                    $.ajax({
+                        url: "{% url 'activate_client' %}",
+                        data: {
+                            id: id
+                        },
+                        type: "POST"
+                    })
+                    .done(function(data){
+                        if (data.data == 'success'){
+                            Swal.fire({
+                              title: "Good job!",
+                              text: "Client/Beneficiary activated",
+                              icon: "success",
+                              confirmButtonColor: "#3498DB",
+                              allowOutsideClick: false,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $('#client-beneficiary-list').DataTable().ajax.reload();
+                                  }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+        $(document).on('click', 'a[data-role=deactivate]', function(){
+            var id = $(this).data('id');
+            Swal.fire({
+              title: "Are you sure",
+              text: "You want to deactivate this data?",
+              icon: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#3498DB",
+              confirmButtonText: "Yes",
+              allowOutsideClick: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.showLoading()
+                    $.ajax({
+                        url: "{% url 'deactivate_client' %}",
+                        data: {
+                            id: id
+                        },
+                        type: "POST"
+                    })
+                    .done(function(data){
+                        if (data.data == 'success'){
+                            Swal.fire({
+                              title: "Good job!",
+                              text: "Client/Beneficiary deactivated",
+                              icon: "success",
+                              confirmButtonColor: "#3498DB",
+                              allowOutsideClick: false,
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    $('#client-beneficiary-list').DataTable().ajax.reload();
+                                  }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+    });
+    
+</script>
+
+{% endblock %}

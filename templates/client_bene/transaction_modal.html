@@ -1,0 +1,109 @@
+{% load tags %}
+{% load static %}
+<style>
+  .avatar {
+    border-radius: 50%; /* Make the canvas circular */
+    overflow: hidden; /* Ensure content outside the border-radius is hidden */
+}
+</style>
+<form id="update_emp_assistance">
+    <center>
+      {% if pict %}
+      <img alt="" src="{{pict.file_field1.url}}" class="avatar" alt="avatar" width = "150" height = "150">
+      {% else %}
+          {% if transaction.sex.name == "Male" %}
+          <div class="avatar"><img alt="" class="avatar" src="{% static 'images/user/male.png' %}" alt="avatar" width = "150" height = "150"></div>
+          {% elif transaction.sex.name == "Female" %}
+          <div class="avatar"><img alt="" class="avatar" src="{% static 'images/user/female.png' %}" alt="avatar" width = "150" height = "150"></div>
+          {% else %}
+          {% endif %}
+      {% endif %}
+    </center>
+    <br>
+    <table class="table table-info display" id="basic-1">
+      <thead>
+        <tr>
+          <p>As Representative Data</p>
+          <th scope="col">Tracking Number</th>
+          <th class="text-center">Relationship</th>
+          <th scope="col">Representative Category</th>
+          <th scope="col">Assistance Type</th>
+          <th scope="col">Date of Transaction</th>
+          <th class="text-center">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in transactionClientData %}  
+          <tr>
+            <th>{{row.transaction.tracking_number|upper}}</th>
+            <th class="text-center">{{row.transaction.relation.name|upper}}</th>
+            <td>{{row.transaction.bene_category.name|upper}}</td>
+            <td>{{row.transaction.lib_assistance_category.name|upper}}</td>
+            <td>{{row.verified_time_start|date:"Y-m-d"|upper}}</td>
+            <td>
+              {% if row.status == 1 %}
+              Pending
+              {% elif row.status == 2 %}
+              Ongoing
+              {% elif row.status == 3 %}
+              For uploading picture
+              {% elif row.status == 4 %}
+              Hold
+              {% elif row.status == 5 %}
+              Cancelled
+              {% elif row.status == 6 %}
+              Completed
+              {% elif row.status == 7 %}
+              Resumed
+              {% else %}
+              Pending
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor%}
+      </tbody>
+    </table>
+    <br>
+    <table class="table table-info">
+        <thead>
+          <tr>
+            <p>As Benefiary Data</p>
+            <th scope="col">Tracking Number</th>
+            <th class="text-center">Relationship</th>
+            <th scope="col">Benefiary Category</th>
+            <th scope="col">Assistance Type</th>
+            <th scope="col">Date of Transaction</th>
+            <th class="text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for row in transactionBeneData %}
+          <tr>
+            <th>{{row.transaction.tracking_number|upper}}</th>
+            <th class="text-center">{{row.transaction.relation.name|upper}}</th>
+            <td>{{row.transaction.bene_category.name|upper}}</td>
+            <td>{{row.transaction.lib_assistance_category.name|upper}}</td>
+            <td>{{row.verified_time_start|date:"Y-m-d"|upper}}</td>
+            <td>
+              {% if row.status == 1 %}
+              Pending
+              {% elif row.status == 2 %}
+              Ongoing
+              {% elif row.status == 3 %}
+              For uploading picture
+              {% elif row.status == 4 %}
+              Hold
+              {% elif row.status == 5 %}
+              Cancelled
+              {% elif row.status == 6 %}
+              Completed
+              {% elif row.status == 7 %}
+              Resumed
+              {% else %}
+              Pending
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor%}
+      </table>
+</form>

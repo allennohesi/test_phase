@@ -1,0 +1,112 @@
+<form id="submitEditForm">
+    {% csrf_token %}
+    <div class="modal-body">
+        <div class="form-group mb-3">
+            <label>Name <span class="txt-danger">*</span></label>
+            <input type="text" class="form-control" id="edit-name" name="edit-name" value="{{ service_provider.name }}" autocomplete="off" required>
+            <div class="invalid-feedback" id="alert-on-edit-name"></div>
+        </div>
+        <div class="form-group mb-3">
+            <label>Acronym</label>
+            <input type="text" class="form-control" id="edit-acronym" name="edit-acronym" value="{{ service_provider.acronym }}" autocomplete="off">
+            <div class="invalid-feedback"></div>
+        </div>
+        <div class="form-group mb-3">
+            <label>Category</label>
+            <select class="form-select form-select-lg mb-3 select-pharmacy" name="category" aria-label=".form-select-lg example">
+                {% if service_provider.pharmacy == "" %}
+                <option selected></option>
+                <option value="PHARMACY">PHARMACY</option>
+                {% else %}
+                <option></option>
+                <option value="PHARMACY" selected>PHARMACY</option>
+                {% endif %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="exampleFormControlTextarea1" class="form-label">Address</label>
+            <textarea class="form-control" id="exampleFormControlTextarea1" name="address" rows="3">{% if service_provider.address %}{{ service_provider.address }}{% endif %}</textarea>
+        </div>
+        <div id="focal-person-content">
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        <input type="text" class="form-control" name="contactnumber" value="{{ service_provider.contact_number }}" autocomplete="off">
+                        <div class="invalid-feedback"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group mb-3">
+            <input type="checkbox" class="form-check-input" name="edit-status" id="edit-status" {% if service_provider.status %}checked{% endif %}> Status
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-default" type="button" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" type="submit">Save changes</button>
+    </div>
+</form>
+{% block script %}
+<script>
+    $('.select-pharmacy').select2({
+        width: '100%',
+        placeholder: 'Choose',
+        containerCssClass: 'select',
+        allowClear: true
+    });
+    function validationForm(){
+        var invalid = false;
+        $('.form-control').each(function() {
+            if (/<[a-z][\s\S]*>/i.test($(this).val())) {
+                $(this).addClass('is-invalid');
+                $(this).next('.invalid-feedback').html("The field cannot contain HTML tags.")
+                invalid = true;
+            }
+        });
+        return invalid;
+    }
+    $('#submitEditForm').on('submit', function(e){
+        e.preventDefault();
+        var form = new FormData(this);
+        if (!validationForm()){
+            Swal.fire({
+                title: "Are you sure",
+                text: "You want to edit this new service provider?",
+                icon: "info",
+                showCancelButton: true,
+                confirmButtonText: "Yes",
+                allowOutsideClick: false,
+                showLoaderOnConfirm: true,
+                preConfirm: function (){
+                    return $.post({
+                        url: "{% url 'edit_service_provider' service_provider.id %}",
+                        data: form,
+                        success : function (response){
+                            if(!response.error){
+                                Swal.fire({
+                                    title: "Good job!",
+                                    html:  response.msg,
+                                    icon: "success",
+                                    allowOutsideClick: false,
+                                }).then((result) => {
+                                    if (result.isConfirmed){
+                                        $('#sp-table').DataTable().ajax.reload();
+                                        $('#edit-sp-modal').modal('hide');
+                                    }
+                                });
+                            } else {
+                                $('#edit-name').addClass('is-invalid');
+                                $('#alert-on-edit-name').html(response.msg);
+                            }
+                        },
+                        cache       : false,
+                        contentType : false,
+                        processData : false,
+                    });
+                },
+            });
+        }
+    });
+</script>
+{% endblock %}

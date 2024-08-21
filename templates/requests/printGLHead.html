@@ -1,0 +1,264 @@
+{%  load static %}
+{% load humanize %}
+{% load tags %}
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guarantee Letter Head</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Load paper.css for happy printing -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paper-css/0.4.1/paper.css">
+  <link rel="icon" href="{% static 'images/logo/logo-icon.png' %}" type="image/x-icon" />
+  <link rel="shortcut icon" href="{% static 'images/logo/logo-icon.png' %}" type="image/x-icon" />
+  <style>
+    @media print {
+      html, body {
+        height:100%; 
+        margin: 0 !important; 
+        padding: 0 !important;
+        overflow: hidden;
+      }
+    
+    }
+    @page{
+      size: A4 portrait;
+
+    }
+    .print-clean {
+      border: 0;
+      outline: 0;
+      background: transparent;
+      border-bottom: 1px solid black;
+    }
+    input {border:0;outline:0;}
+    input:focus {outline:none!important;}
+    body {
+      font-family: 'Arial', sans-serif;
+    }
+    .styled-text {
+      display: inline-block;
+      border-bottom: 1px solid black; /* Change the color and style as needed */
+      width: 485px; /* Set the desired width */
+      text-align: center;
+      font-weight: bold;
+    }
+    .styled-name {
+      display: inline-block;
+      border-bottom: 1px solid black; /* Change the color and style as needed */
+      width:230px; /* Set the desired width */
+      text-align: center;
+      font-weight: bold;
+    }
+    .styled-address {
+      display: inline-block;
+      border-bottom: 1px solid black; /* Change the color and style as needed */
+      width:400px; /* Set the desired width */
+      text-align: center;
+      font-size:13px;
+      font-weight: bold;
+    }
+    .span {
+      display: inline-block;
+      border-bottom: 1px solid black; /* Change the color and style as needed */
+      width:340px; /* Set the desired width */
+      text-align: center;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="legal portrait">
+     
+  <section class="sheet page">
+    <div class="container-fluid" style="font-family:Arial, sans-serif;"> 
+      <table class="title table table-bordered" style="margin-top: 17px;margin-bottom: 0px;border-color: white;">
+        <thead style="line-height:15px;">
+          <th>
+            <img src="{% static 'lp_assets/images/final.png' %}" style="margin-top: 0px;" class="mx-auto d-block float-start" width="180px" height="35px">
+          </th>
+          {% comment %} <th style="font-family: Times, Times New Roman, serif;text-align: center;float: right;">
+            <label style="font-size: 13px;">CRISIS INTERVENTION SECTION</label><br>
+            <label style="font-size: 12px;">PROTECTIVE SERVICES DIVISION</label><br>
+            <label style="font-size: 14px;">FIELD OFFICE CARAGA</label><br>
+            <label style="font-size: 10px;">DSWD-PMB-GF-000 | REV 00 / xx xxx xxxx</label>
+          </th>         {% endcomment %}
+        </thead>          
+      </table>
+      <!-- Letter Head -->
+      <table class="beneficiary-info table table-bordered" style="font-size: 12px;margin-top:20px;border-top-color: black;border-color: white;text-align: center;">
+        <tr>
+          <td width="30px" style="text-align: left;">
+            <label>GL&nbsp;No.</label>
+          </td>
+          <td width="150px"  style="border-bottom: 1px solid black;font-weight: bold;">
+            <label>{{ data.tracking_number|stringformat:"s"|slice:":8" }}</label>
+          </td>
+        </tr>
+        <tr>
+          <td width="10px" style="text-align:left;">
+            <label>Date</label>
+          </td>
+          <td width="150px" style="border-bottom: 1px solid black;font-weight: bold;">
+            <label>{{transactionStartEnd.verified_time_start|date:"M. d, Y"}}</label>
+          </td>
+          <td colspan="2"></td>
+          <td colspan="2"></td>
+          <td colspan="2" ></td>
+          <td colspan="2"></td>
+        </tr>
+      </table>
+      <br>
+      <table class="beneficiary-info table table-bordered" style="font-size: 15px;margin-top:10px;border-top-color: black;border-color: white;text-align: center;">
+        <tr>
+          <td width="300px" style="text-align:left;">
+            <label style="font-weight: bold;">Addressee: <u>{{data.service_provider.name}}</u></label><br>
+            <label>Address: {% if data.service_provider.address %}{{data.service_provider.address}}{% endif %}</label><br>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+      <!-- End of Letter Head -->
+      <!-- Letter Body -->
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:10px;border-top-color: black;border-color: white;text-align: center;">
+        <tr>
+          <td width="150px" style="text-align:left;font-size: 14px;">
+            <label>Dear Ma'am/Sir,</label>
+          </td>
+          <td width="150px;">
+            <label></label>
+          </td>
+          <td colspan="2"></td>
+          <td colspan="2"></td>
+          <td colspan="2" ></td>
+          <td colspan="2"></td>
+        </tr>        
+      </table>
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px; margin-top: 30px; border-top-color: black; border-color: white; text-align: justify;">
+        <tr>
+          <td>
+            <label>This has reference to the request for the <span class="styled-text">{{data.lib_assistance_category.name|upper}}</span> of <br>
+              herein client, <span class="styled-name">{{data.client.get_client_fullname}}</span>, from <span class="styled-address">{{data.client.get_client_address}}</span>,</label><br>
+            <label>for his/her <span class="span">{{data.relation.name|upper}}</span>, <span class="span">{{data.bene.get_client_fullname}}</span>.</label>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <label>The Department of Social Welfare and Development has assessed and validated the said request for assistance through <br>the Crisis Intervention Division. Thus, 
+              the Department is using this letter to guarantee the payment of the bill in the amount of <br> 
+              <span class="span">
+                {% with numeric_value=calculate.total_payment|floatformat:2|intcomma %}
+                <!-- Convert the number to words -->
+                {{ numeric_value|number_to_words }}
+                {% endwith %}
+              </span> 
+              (<span class="span">PHP {{calculate.total_payment|floatformat:2|intcomma}}</span>).</label>
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+        </tr>
+        <tr>
+          <td>
+            <label>To facilitate the payment, please submit to the Crisis Intervention Unit/Section through 	<span class="styled-name">LORAINE R. CAGULA</span>	 the following documents for the preparation of the Disbursement Voucher 
+              within one week after the service has been completed. <br><br>
+              Ø Guarantee Letter (GL) from the DSWD with your company's "received" stamp or signature over the printed name of the authorized representative. <br>
+              Ø Statement of Accounts (SOA) or Billing Statement or Sales Invoice with corresponding operative technique or charge slip addressed to DSWD
+              </label>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label></label>
+          </td>
+        </tr>
+      </table>
+      
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:-30px;border-top-color: black;border-color: white;text-align: left;">
+        <tr>
+          <td>
+            <label>Please be informed that said payment will be directly deposited to your company's bank acount. Should</label>
+          </td>
+          <td></td>
+        </tr>
+      </table>
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:-30px;border-top-color: black;border-color: white;text-align: left;">
+        <tr>
+          <td width="150px">
+            <label>there be any query, you may call us at <u><b>303-8620</b></u>.</label>
+          </td>
+        </tr>
+      </table>
+      <!-- End of Letter Body -->
+      <!-- Letter Footer -->
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:-10px;border-top-color: black;border-color: white;text-align: left;">
+        <tr>
+          <td width="200px">
+            <label>For your consideration.</label><br><br>
+            <label>Thank you</label><br><br>
+            <label>Very truly yours,</label><br><br>
+          </td>
+        </tr>
+        <tr>
+          <td>            
+          </td>
+          <td></td>
+        </tr>
+        <tr>
+          <td width="340px">
+            <label><b><u>{{data.signatories.get_fullname|upper}}</b></u></label><br>
+            <label>Approving Authority</label><br>
+            {% comment %} <label>Position: SWO III</label><br>
+            <label>Office: CIS</label><br> {% endcomment %}
+        </tr>
+      </table>
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:10px;border-top-color: black;border-color: white;text-align: left;">
+        <tr>
+          <td width="85px">
+            <label>Valid until</label>
+          </td>
+          <td width="150px" style="border-bottom: 1px solid black;font-weight: bold;">
+            <label>{{validity}}</label>
+          </td>
+          <td></td>
+        </tr>
+      </table>
+      <table class="beneficiary-info table table-bordered" style="font-size: 14px;margin-top:-20px;border-top-color: black;border-color: white;text-align: left;">
+        <tr>
+          <td>
+            <label>*validity period includes the time of receipt of the guarantee letter by the service provider</label>
+          </td>
+        </tr>
+      </table>
+        <table class="beneficiary-info table table-bordered" style="font-size: 12px;margin-top:20px;border-top-color: black;border-color: white;text-align: center;">
+          <tr style="font-size: 8px;border-bottom: 1px solid black;">
+            <td colspan="4"></td>
+            <td colspan="4">
+              <label>Page 1 of 1</label>
+            </td>
+            <td colspan="4">
+            </td>
+          </tr>          
+        </table>
+        <table class="beneficiary-info table table-bordered" style="font-size: 12px;margin-top:-25px;border-top-color: black;border-color: white;text-align: center;">
+          <tr style="font-size: 8px;font-weight: bold;">
+            <td colspan="4"></td>
+            <td  colspan="4">
+              <img height="35px" style="float:right;" src="{% static 'lp_assets/images/socotec.png' %}">
+              <label>DSWD Field Office Caraga. R. Palma. Brgy. Dagohoy. Butuan City. Philippines 8600  </label><br><label>Website: http://www.dswd.gov.ph  Email: cis.focrg@dswd.gov.ph   Tel Nos.: 303-8620</label>
+            </td>
+          </tr>
+        </table>
+
+      </div>
+    </div>
+  </section>
+
+</body>
+
+  
+</html>
